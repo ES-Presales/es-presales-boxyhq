@@ -30,6 +30,30 @@ const terminus = {
   hostUrl: process.env.TERMINUS_PROXY_HOST_URL,
   adminToken: process.env.TERMINUS_ADMIN_ROOT_TOKEN,
   retracedProjectId: process.env.TERMINUS_RETRACED_PROJECT_ID,
+  llmRetracedProjectId: process.env.TERMINUS_LLM_RETRACED_PROJECT_ID,
+  apiKey:
+    process.env.TERMINUS_READ_API_KEY && process.env.TERMINUS_WRITE_API_KEY
+      ? {
+          read: process.env.TERMINUS_READ_API_KEY,
+          write: process.env.TERMINUS_WRITE_API_KEY,
+        }
+      : undefined,
+  llm:
+    process.env.TERMINUS_LLM_TENANT && process.env.TERMINUS_LLM_PRODUCT
+      ? {
+          product: process.env.TERMINUS_LLM_PRODUCT,
+          tenant: process.env.TERMINUS_LLM_TENANT,
+        }
+      : undefined,
+};
+
+// LLM Chat
+const llm = {
+  documentChat: {
+    hostUrl: process.env.LLM_DOCUMENT_CHAT_HOST_URL || '',
+    roleMapping: process.env.LLM_DOCUMENT_CHAT_ROLE_MAPPING || '',
+    jwtSigningKey: process.env.LLM_DOCUMENT_CHAT_SIGNING_KEY || '',
+  },
 };
 
 export const setupLinkExpiryDays = process.env.SETUP_LINK_EXPIRY_DAYS
@@ -87,6 +111,7 @@ const jacksonOptions: JacksonOption = {
     process.env.BOXYHQ_NO_ANALYTICS === '1' ||
     process.env.BOXYHQ_NO_ANALYTICS === 'true',
   terminus,
+  llm,
   webhook: {
     endpoint: process.env.WEBHOOK_URL || '',
     secret: process.env.WEBHOOK_SECRET || '',
@@ -126,8 +151,12 @@ const adminPortalSSODefaults = {
   defaultRedirectUrl: `${externalUrl}/admin/auth/idp-login`,
 };
 
+const features = { llmVault: process.env.FEATURE_LLM_VAULT === 'true' };
+
 export { adminPortalSSODefaults };
 export { retraced as retracedOptions };
 export { terminus as terminusOptions };
 export { apiKeys };
 export { jacksonOptions };
+export { llm as llmOptions };
+export { features };

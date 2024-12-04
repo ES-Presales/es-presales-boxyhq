@@ -1,4 +1,4 @@
-import HomeIcon from '@heroicons/react/24/outline/HomeIcon';
+import { House, Settings } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import classNames from 'classnames';
@@ -10,7 +10,8 @@ import SSOLogo from '@components/logo/SSO';
 import DSyncLogo from '@components/logo/DSync';
 import AuditLogsLogo from '@components/logo/AuditLogs';
 import Vault from '@components/logo/Vault';
-import Cog8ToothIcon from '@heroicons/react/24/outline/Cog8ToothIcon';
+import { useCallback, useEffect } from 'react';
+import useFeatures from '@lib/ui/hooks/useFeatures';
 
 type SidebarProps = {
   isOpen: boolean;
@@ -22,19 +23,37 @@ type MenuItem = {
   href: string;
   text: string;
   active: boolean;
+  onClick?: () => void;
   icon?: any;
   items?: MenuItem[];
+  current?: boolean;
 };
 
 export const Sidebar = ({ isOpen, setIsOpen, branding }: SidebarProps) => {
   const { t } = useTranslation('common');
   const { asPath } = useRouter();
 
-  const menus = [
+  const closeSidebar = useCallback(() => setIsOpen(false), [setIsOpen]);
+
+  const features = useFeatures();
+
+  useEffect(() => {
+    function handleEscKey(e) {
+      if ((e as KeyboardEvent).key === 'Escape') {
+        closeSidebar();
+      }
+    }
+    document.addEventListener('keydown', handleEscKey);
+    return () => {
+      document.removeEventListener('keydown', handleEscKey);
+    };
+  }, [closeSidebar]);
+
+  const menuItems = [
     {
       href: '/admin/dashboard',
       text: t('dashboard'),
-      icon: HomeIcon,
+      icon: House,
       active: asPath.includes('/admin/dashboard'),
     },
     {
@@ -126,10 +145,36 @@ export const Sidebar = ({ isOpen, setIsOpen, branding }: SidebarProps) => {
         },
       ],
     },
+    features?.llmVault
+      ? {
+          href: '/admin/llm-vault/chat',
+          text: t('llm_vault'),
+          icon: Vault,
+          current: asPath.includes('llm-vault'),
+          active: asPath.includes('/admin/llm-vault'),
+          items: [
+            {
+              href: '/admin/llm-vault/policies',
+              text: t('policies'),
+              active: asPath.includes('/admin/llm-vault/policies'),
+            },
+            {
+              href: '/admin/llm-vault/chat',
+              text: t('bui-chat'),
+              active: asPath.includes('/admin/llm-vault/chat'),
+            },
+            {
+              href: '/admin/llm-vault/audit-logs',
+              text: t('audit_logs'),
+              active: asPath.includes('/admin/llm-vault/audit-logs'),
+            },
+          ],
+        }
+      : null,
     {
       href: '/admin/settings',
       text: t('settings'),
-      icon: Cog8ToothIcon,
+      icon: Settings,
       active: asPath.includes('/admin/settings'),
       items: [
         {
@@ -144,28 +189,30 @@ export const Sidebar = ({ isOpen, setIsOpen, branding }: SidebarProps) => {
         },
       ],
     },
-  ];
+  ].filter((m): m is NonNullable<typeof m> => m !== null);
+
+  const menus: MenuItem[] = menuItems;
 
   return (
     <>
       {/* Sidebar for mobile */}
       <div
-        className={classNames('relative z-40 md:hidden', { hidden: isOpen })}
+        className={classNames('relative z-40 md:hidden', { hidden: !isOpen })}
         role='dialog'
         aria-modal='true'>
         <div className='fixed inset-0 bg-gray-600 bg-opacity-75' />
         <div className='fixed inset-0 z-40 flex'>
           <div className='relative flex w-full max-w-xs flex-1 flex-col bg-white pt-5 pb-4'>
-            <div className='absolute top-0 right-0 -mr-12 pt-2'>
+            <div className='absolute top-0 right-0 -mr-12 pt-2'></div>
+            <div className='flex flex-shrink-0 items-center px-4'>
+              <BrandingLink t={t} branding={branding}></BrandingLink>
               <button
-                onClick={() => {
-                  setIsOpen(!isOpen);
-                }}
+                onClick={closeSidebar}
                 type='button'
                 className='ml-1 flex h-10 w-10 items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white'>
                 <span className='sr-only'>{t('close_sidebar')}</span>
                 <svg
-                  className='h-6 w-6 text-white'
+                  className='h-6 w-6'
                   xmlns='http://www.w3.org/2000/svg'
                   fill='none'
                   viewBox='0 0 24 24'
@@ -176,24 +223,40 @@ export const Sidebar = ({ isOpen, setIsOpen, branding }: SidebarProps) => {
                 </svg>
               </button>
             </div>
-            <div className='flex flex-shrink-0 items-center px-4'>
-              <BrandingLink t={t} branding={branding}></BrandingLink>
-            </div>
             <div className='mt-5 h-0 flex-1 overflow-y-auto'>
               <MenuItems menus={menus} />
             </div>
           </div>
-          <div className='w-14 flex-shrink-0' aria-hidden='true'></div>
+          <div className='w-14 flex-1' aria-hidden='true' onClick={closeSidebar}></div>
         </div>
       </div>
-
       {/* Sidebar for desktop */}
-      <div className='hidden md:fixed md:inset-y-0 md:flex md:w-64 md:flex-col'>
-        <div className='flex flex-grow flex-col overflow-y-auto border-r border-gray-200 bg-white pt-5'>
-          <div className='flex flex-shrink-0 items-center px-4'>
+      <div
+        className={classNames('hidden w-64 flex-col flex-shrink-0 h-full', {
+          hidden: !isOpen,
+          'md:flex': isOpen,
+        })}>
+        <div className='flex flex-grow flex-col overflow-y-hidden border-r border-gray-200 bg-white pt-5 h-full'>
+          <div className='flex flex-shrink-0 items-center pl-4 pr-2'>
             <BrandingLink t={t} branding={branding}></BrandingLink>
+            <button
+              onClick={closeSidebar}
+              type='button'
+              className='ml-1 flex h-10 w-10 items-center justify-center rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white'>
+              <span className='sr-only'>{t('close_sidebar')}</span>
+              <svg
+                className='h-6 w-6'
+                xmlns='http://www.w3.org/2000/svg'
+                fill='none'
+                viewBox='0 0 24 24'
+                strokeWidth={2}
+                stroke='currentColor'
+                aria-hidden='true'>
+                <path strokeLinecap='round' strokeLinejoin='round' d='M6 18L18 6M6 6l12 12' />
+              </svg>
+            </button>
           </div>
-          <div className='mt-5 flex flex-1 flex-col'>
+          <div className='my-5 flex flex-1 flex-col h-full overflow-y-auto '>
             <MenuItems menus={menus} />
           </div>
         </div>
@@ -204,11 +267,11 @@ export const Sidebar = ({ isOpen, setIsOpen, branding }: SidebarProps) => {
 
 const MenuItems = ({ menus }: { menus: MenuItem[] }) => {
   return (
-    <nav className='space-y-1'>
+    <nav className='space-y-1 h-full overflow-y-auto'>
       {menus.map((menu, id) => {
         return (
           <div key={id}>
-            <ItemLink key={id} {...menu} />
+            <ItemLink {...menu} />
             {menu.items && <SubMenuItems items={menu.items} />}
           </div>
         );
@@ -230,11 +293,12 @@ const SubMenuItems = ({ items }: { items: MenuItem[] }) => {
 };
 
 const ItemLink = (props: MenuItem) => {
-  const { href, text, active } = props;
+  const { href, text, active, onClick } = props;
 
   return (
     <Link
       href={href}
+      onClick={onClick}
       className={classNames(
         'group mx-2 flex items-center rounded-md py-2 px-2 text-sm text-gray-900',
         active ? 'bg-gray-100 font-bold' : 'font-medium hover:bg-gray-100 hover:text-gray-900'
