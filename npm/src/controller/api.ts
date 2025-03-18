@@ -91,7 +91,10 @@ export class ConnectionAPIController implements IConnectionAPIController {
    *           description: Connection sort order
    *         acsUrlOverride:
    *           type: string
-   *           description: URL to override the set ACS URL per connection basis
+   *           description: Override the global ACS URL on a per connection basis
+   *         samlAudienceOverride:
+   *           type: string
+   *           description: Override the global SAML Audience on a per connection basis
    *       example:
    *         idpMetadata:
    *           sso:
@@ -114,7 +117,7 @@ export class ConnectionAPIController implements IConnectionAPIController {
    *     validationErrorsPost:
    *       description: Please provide rawMetadata or encodedRawMetadata | Please provide a defaultRedirectUrl | Please provide redirectUrl | redirectUrl is invalid | Exceeded maximum number of allowed redirect urls | defaultRedirectUrl is invalid | Please provide tenant | Please provide product | Please provide a friendly name | Description should not exceed 100 characters | Strategy&#58; xxxx not supported | Please provide the clientId from OpenID Provider | Please provide the clientSecret from OpenID Provider | Please provide the discoveryUrl for the OpenID Provider
    *     validationErrorsPatch:
-   *       description: Please provide clientID | Please provide clientSecret | clientSecret mismatch | Tenant/Product config mismatch with IdP metadata | Description should not exceed 100 characters| redirectUrl is invalid | Exceeded maximum number of allowed redirect urls | defaultRedirectUrl is invalid | Tenant/Product config mismatch with OIDC Provider metadata
+   *       description: Please provide clientID/clientSecret | clientSecret mismatch | Tenant/Product config mismatch with IdP metadata | Description should not exceed 100 characters| redirectUrl is invalid | Exceeded maximum number of allowed redirect urls | defaultRedirectUrl is invalid | Tenant/Product config mismatch with OIDC Provider metadata
    *   responses:
    *     200Get:
    *       description: Success
@@ -278,7 +281,10 @@ export class ConnectionAPIController implements IConnectionAPIController {
    *                 description: Indicate the position of the connection in the IdP selection screen
    *               acsUrlOverride:
    *                 type: string
-   *                 description: URL to override the set ACS URL per connection basis
+   *                 description: Override the global ACS URL on a per connection basis
+   *               samlAudienceOverride:
+   *                 type: string
+   *                 description: Override the global SAML Audience on a per connection basis
    *               forceAuthn:
    *                 type: boolean
    *                 description: Require a new authentication instead of reusing an existing session.
@@ -340,7 +346,10 @@ export class ConnectionAPIController implements IConnectionAPIController {
    *                 description: Indicate the position of the connection in the IdP selection screen
    *               acsUrlOverride:
    *                 type: string
-   *                 description: URL to override the set ACS URL per connection basis
+   *                 description: Override the global ACS URL on a per connection basis
+   *               samlAudienceOverride:
+   *                 type: string
+   *                 description: Override the global SAML Audience on a per connection basis
    *               forceAuthn:
    *                 type: boolean
    *                 description: Require a new authentication instead of reusing an existing session.
@@ -469,7 +478,10 @@ export class ConnectionAPIController implements IConnectionAPIController {
    *                 description: Indicate the position of the connection in the IdP selection screen
    *               acsUrlOverride:
    *                 type: string
-   *                 description: URL to override the set ACS URL per connection basis
+   *                 description: Override the global ACS URL on a per connection basis
+   *               samlAudienceOverride:
+   *                 type: string
+   *                 description: Override the global SAML Audience on a per connection basis
    *               forceAuthn:
    *                 type: boolean
    *                 description: Require a new authentication instead of reusing an existing session.
@@ -540,7 +552,10 @@ export class ConnectionAPIController implements IConnectionAPIController {
    *                 description: Indicate the position of the connection in the IdP selection screen
    *               acsUrlOverride:
    *                 type: string
-   *                 description: URL to override the set ACS URL per connection basis
+   *                 description: Override the global ACS URL on a per connection basis
+   *               samlAudienceOverride:
+   *                 type: string
+   *                 description: Override the global SAML Audience on a per connection basis
    *               forceAuthn:
    *                 type: boolean
    *                 description: Require a new authentication instead of reusing an existing session.
